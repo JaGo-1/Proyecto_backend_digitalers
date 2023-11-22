@@ -1,31 +1,24 @@
 const { Schema, model } = require("mongoose");
 
-const userSchema = new Schema(
+const playListSchema = new Schema(
   {
-    username: {
+    song: {
       type: String,
       required: true,
       trim: true,
     },
 
-    email: {
+    artist: {
       type: String,
       required: true,
       trim: true,
-      unique: true,
     },
 
-    password: {
+    album: {
       type: String,
       required: true,
       trim: true,
     },
-    roles: [
-      {
-        ref: "Role",
-        type: Schema.Types.ObjectId,
-      },
-    ],
   },
   {
     timestamps: true,
@@ -33,4 +26,4 @@ const userSchema = new Schema(
   }
 );
 
-module.exports = model("User", userSchema);
+module.exports = model("PlayList", playListSchema);

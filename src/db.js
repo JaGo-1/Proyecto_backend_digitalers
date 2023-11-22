@@ -1,13 +1,17 @@
 const mongoose = require("mongoose");
-const dtenv = require("dotenv").config();
+require("dotenv").config();
 
 const DB_HOST = process.env.DB_HOST;
+const MONGOATLAS = process.env.MONGOATLAS;
 
-exports.connectDB = async () => {
-  try {
-    await mongoose.connect(DB_HOST);
-    console.log("+++++++++ BASE DE DATOS CONECTADA +++++++++");
-  } catch (error) {
-    console.log(error);
-  }
-};
+const connectDB = mongoose
+  .connect(MONGOATLAS, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  .then(() => {
+    console.log("DB Conected");
+  })
+  .catch((err) => console.log(err));
+
+module.exports = connectDB;

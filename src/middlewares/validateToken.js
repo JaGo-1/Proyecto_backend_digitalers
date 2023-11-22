@@ -3,24 +3,21 @@ const dtenv = require("dotenv").config();
 const User = require("../models/user.model.js");
 const Role = require("../models/role.model.js");
 
-const SECRET_KEY = process.env.SECRET_KEY; // clave para firmar y verificar los tokens desde las variables de entorno
-
-// middleware para verificar la autenticación del usuario
+const SECRET_KEY = process.env.SECRET_KEY;
 exports.authRequired = async (req, res, next) => {
   const { token } = req.cookies;
-
-  if (!token) return res.status(401).json({ message: "no token provided" });
+  const error = "No token provided";
+  if (!token) return res.status(401).render("error", { error });
 
   const decoded = jwt.verify(token, SECRET_KEY);
   req.userId = decoded.id;
 
-  const user = await User.findById(req.userId, { password: 0 }); // Buscamos al usuario en la base de datos excluyendo la contraseña
+  const user = await User.findById(req.userId, { password: 0 });
   if (!user) return res.status(404).json({ message: "No user found" });
 
-  next(); // continua con la ejecución del siguiente middleware
+  next();
 };
 
-// middleware para verificar si el usuario es administrador
 exports.isAdmin = async (req, res, next) => {
   const user = await User.findById(req.userId);
   console.log(user);
@@ -32,6 +29,6 @@ exports.isAdmin = async (req, res, next) => {
       return;
     }
   }
-
-  return res.status(403).json({ message: "Admin required" });
+  const error = "Admin required";
+  return res.status(403).render("error", { error });
 };

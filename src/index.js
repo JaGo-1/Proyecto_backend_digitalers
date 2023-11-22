@@ -1,9 +1,9 @@
 const app = require("./app.js");
-const { connectDB } = require("./db.js");
+//const { connectDB } = require("./db.js");
 const dtenv = require("dotenv").config();
 
 const PORT = process.env.PORT;
-
-connectDB();
+require("./db.js");
+//connectDB();
 app.listen(PORT || 3000);
-console.log("Servidor escuchando en el puerto", PORT || 3000);
+console.log("Server on port", PORT || 3000);

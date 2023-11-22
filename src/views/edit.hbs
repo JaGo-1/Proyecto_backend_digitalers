@@ -1,0 +1,47 @@
+<!--form action="/update" method="post">
+  <div>
+    <input type="text" name="song" placeholder="Song name" id="song" />
+  </div>
+  <div><input
+      type="text"
+      name="artist"
+      placeholder="Artist"
+      id="artist"
+    /></div>
+  <div><input type="text" name="album" placeholder="Album" id="album" /></div>
+  <button>Add</button>
+</form-->
+{{#if isAdmin}}
+  <div class="form-container playList">
+    <form action="/edit/{{_id}}" method="POST" class="form">
+      <h1>Agregar a la lista de reproduccion</h1>
+      <div class="input-container">
+        <input
+          required
+          class="input input-box"
+          type="text"
+          name="song"
+          placeholder="Song name"
+          id="song"
+        />
+      </div>
+      <div class="input-container"><input
+          required
+          class="input input-box"
+          type="text"
+          name="artist"
+          placeholder="Artist"
+          id="artist"
+        /></div>
+      <div class="input-container"><input
+          required
+          class="input input-box"
+          type="text"
+          name="album"
+          placeholder="Album"
+          id="album"
+        /></div>
+      <button class="button">Add</button>
+    </form>
+  </div>
+{{/if}}

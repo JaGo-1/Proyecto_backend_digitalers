@@ -4,13 +4,19 @@ const bcrypt = require("bcryptjs");
 const { generateJWT } = require("../libs/jwt.js");
 
 exports.register = async (req, res) => {
-  const { email, password, username, roles } = req.body; //lee la petición
+  const { email, password, username, roles } = req.body;
 
   try {
-    const passwordHash = await bcrypt.hash(password, 10);
+    const existingUser = await User.findOne({ email });
 
+    if (existingUser) {
+      return res
+        .status(400)
+        .json({ message: "El correo electrónico ya está en uso." });
+    }
+
+    const passwordHash = await bcrypt.hash(password, 10);
     const newUser = new User({
-      //crea objeto
       username,
       email,
       password: passwordHash,
@@ -23,18 +29,23 @@ exports.register = async (req, res) => {
       const role = await Role.findOne({ name: "user" });
       newUser.roles = [role._id];
     }
-    const userSaved = await newUser.save(); //guarda en la base de datos
+    const userSaved = await newUser.save();
+
     const token = await generateJWT({ id: userSaved._id });
 
     res.cookie("token", token);
 
-    res.json({
+    /*  res.json({
       id: userSaved._id,
       username: userSaved.username,
       email: userSaved.email,
       roles: userSaved.roles,
       createdAt: userSaved.createdAt,
       updatedAt: userSaved.updatedAt,
+    }); */
+    res.json({
+      message: "user registered",
+      redirectUrl: "/dashboard",
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -42,18 +53,14 @@ exports.register = async (req, res) => {
 };
 
 exports.login = async (req, res) => {
-  const { email, password } = req.body; //lee la petición
+  const { email, password } = req.body;
 
   try {
-    //validar email
-
     const userFound = await User.findOne({ email }).populate("roles");
     if (!userFound)
       return res.status(400).json({ message: "Usuario no encontrado" });
 
     console.log(userFound);
-
-    //validar contrasenia
 
     const isMatch = await bcrypt.compare(password, userFound.password);
 
@@ -65,11 +72,8 @@ exports.login = async (req, res) => {
     res.cookie("token", token);
 
     res.json({
-      id: userFound._id,
-      username: userFound.username,
-      email: userFound.email,
-      createdAt: userFound.createdAt,
-      updatedAt: userFound.updatedAt,
+      message: "Inicio de sesión exitoso",
+      redirectUrl: "/dashboard",
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -106,24 +110,20 @@ exports.updateUser = async (req, res) => {
     const userId = req.params.id;
     const { username, email, password } = req.body;
 
-    // busca el usuario por ID
     const user = await User.findById(userId);
 
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
 
-    // si se proporciona una nueva contraseña, encripta y actualiza la contraseña
     if (password) {
       const passwordHash = await bcrypt.hash(password, 10);
       user.password = passwordHash;
     }
 
-    // actualiza otros campos del usuario
     user.username = username || user.username;
     user.email = email || user.email;
 
-    // guarda los cambios en el usuario
     await user.save();
 
     res.json(user);

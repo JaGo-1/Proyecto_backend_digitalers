@@ -55,9 +55,22 @@ router.get("/admin-dashboard", authRequired, isAdmin, async (req, res) => {
 
 router.post("/playlist/add", createPlayList);
 
-router.get("/update/:id", renderPlayListEdit);
+//router.get("/update/:id", renderPlayListEdit);
+router.get("/update/:id", async (req, res) => {
+  try {
+    const playList = await PlayList.findById(req.params.id).lean();
+    res.render("edit", { playList });
+  } catch (error) {
+    console.log(error.message);
+  }
+});
 
-router.post("/update/:id", updatePlayList);
+router.post("/update/:id", async (req, res) => {
+  const { id } = req.params;
+  await PlayList.findByIdAndUpdate(id, req.body);
+  res.redirect("/admin-dashboard");
+});
+//router.post("/edit/:id", updatePlayList);
 
 router.get("/delete/:id", deletePlayList);
 
